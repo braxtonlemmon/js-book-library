@@ -1,0 +1,101 @@
+* {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	font-family: George, sans-serif;
+	background-color: rgb(172, 147, 147);
+}
+
+h1 {
+	font-size: 30px;
+}
+
+.wrapper {
+	height: 100vh;
+	width: 100%;
+	display: grid;
+	grid-template-columns: 50px 1fr 50px;
+}
+
+/* HEADER */
+.header {
+	grid-column: 1 / -1;
+	background: gold;
+	height: 50px;
+	width: 100%;
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	position: fixed;
+}
+
+.new-book {
+	width: 100px;
+	height: 40px;
+
+}
+
+/* MAIN CONTAINER */
+.container {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 20px;
+	grid-column: 2 / span 1;
+	padding-top: 60px;
+}
+
+/* Book card */
+.book {
+	background-color: rgb(134, 57, 57);
+	border: 5px solid black;
+	border-radius: 10px;
+	font-size: 14px;
+	height: 150px;
+	font-size: 15px;
+	padding: 5px;
+	display: flex;
+	flex-direction: column;
+}
+
+.card-label {
+	font-weight: 700;
+	font-size: 18px;
+}
+
+
+
+
+/* FORM */
+.book-form {
+	visibility: hidden;
+	background-color: rgb(170, 52, 34);
+	display: flex;
+	flex-direction: column;
+	position: fixed;
+	top: 60px;
+	left: 0;
+	right: 0;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 30px;
+	height: 300px;
+	width: 50%;
+	text-align: center;
+}
+
+.book-form > * {
+	margin: 5px;
+}
+
+.read-status {
+	display: flex;
+	justify-content: space-around;
+}
+
+.submit-book {
+	width: 100px;
+	align-self: center;
+	margin-top: 30px;
+}
