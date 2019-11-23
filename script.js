@@ -4,7 +4,9 @@
 	================
 */
 let myLibrary = [];
+let cardNum = 0;
 let formData;
+let id = 0;
 const newBook = document.querySelector('.new-book');
 const bookForm = document.querySelector('.book-form');
 const wrapper = document.querySelector('.wrapper');
@@ -40,11 +42,15 @@ const defaultBooks = {
 
 // Book constructor
 function Book(title, author, pages, read) {
+	this.id = id++;
 	this.title = title
 	this.author = author
 	this.pages = pages
 	this.read = read
+	this.num = cardNum;
 }
+
+
 
 // The data entered into the form to be used to make the book card
 function getFormData() {
@@ -93,7 +99,7 @@ function validateForm() {
 			found = true;
 		}
 	}
-	
+
 	if (found != true) {
 		window.alert('Have you read the book?');
 		return false;
@@ -131,8 +137,15 @@ function createBookElement(book) {
 				<span class="card-label">Status:</span>
 				<span class="status">${book.read}</span>
 			</div>
+			<div class="card-buttons">
+				<input type="button" class="edit-card" value="Edit">
+				<input type="button" class="delete-card" data-id="${book.id}" value="Remove">
+			</div> 
 		`
 	div.classList.add('book');
+	div.dataset.id = book.id;
+	console.log(`Div id: ${div.dataset.id}`);
+	console.log(`Book id: ${book.id}`)
 	container.appendChild(div);
 }
 
@@ -154,6 +167,18 @@ function hideForm() {
 function showForm() {
 	bookForm.style.visibility = "initial";
 	wrapper.style.opacity = "0.5";
+}
+
+function deleteCard(e) {
+	// remove div
+	const id = e.target.dataset.id;
+	const div = document.querySelector(`div[data-id="${id}"]`);
+	container.removeChild(div);
+
+	// remove object from array
+	const arrayItem = myLibrary.find(obj => obj.id == id);
+	const itemIndex = myLibrary.indexOf(arrayItem);
+	myLibrary.splice(itemIndex, 1);
 }
 
 /*
@@ -186,6 +211,10 @@ window.addEventListener('click', (e) => {
 				addBookToLibrary();
 				hideForm();
 			}
+			break;
+		case 'delete-card':
+			deleteCard(e);
+			// render();
 			break;
 	}
 });
