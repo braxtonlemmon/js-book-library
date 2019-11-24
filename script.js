@@ -4,13 +4,14 @@
 	================
 */
 let myLibrary = [];
-let cardNum = 0;
 let formData;
 let id = 0;
 const newBook = document.querySelector('.new-book');
 const bookForm = document.querySelector('.book-form');
 const wrapper = document.querySelector('.wrapper');
 const container = document.querySelector('.container');
+const hasRead = "Yes";
+const notRead = "No";
 
 // Object containing initial books for testing
 const defaultBooks = {
@@ -18,19 +19,19 @@ const defaultBooks = {
 		title: 'Artemis Fowl',
 		author: 'Eoin Colfer',
 		pages: 234,
-		read: 'Read'
+		read: true
 	},
 	bookTwo: {
 		title: 'H is for Hawk',
 		author: 'Helen Macdonald',
 		pages: 300,
-		read: 'Read'
+		read: true
 	},
 	bookThree: {
 		title: 'Personal Days',
 		author: 'Ed Park',
 		pages: 256,
-		read: 'Not read'
+		read: false
 	}
 }
 
@@ -42,30 +43,35 @@ const defaultBooks = {
 
 // Book constructor
 function Book(title, author, pages, read) {
-	this.id = id++;
+	this.id = id++
 	this.title = title
 	this.author = author
 	this.pages = pages
 	this.read = read
-	this.num = cardNum;
 }
 
-
+// Add method to Book prototype to toggle read status
+Book.prototype.changeReadStatus = function () {
+	this.read = (this.read ? false : true);
+	const div = document.querySelector(`div[data-id="${this.id}"]`);
+	const span = div.getElementsByClassName('status').item(0);
+	span.textContent = (this.read ? hasRead : notRead);
+};
 
 // The data entered into the form to be used to make the book card
 function getFormData() {
 	formData = {
-		title:  document.getElementById('title').value,
+		title: document.getElementById('title').value,
 		author: document.getElementById('author').value,
-		pages:  document.getElementById('pages').value,
-		read:   getReadStatus(),
+		pages: document.getElementById('pages').value,
+		read: getReadStatus(),
 	}
 }
 
 // Check radio button for read status
-function getReadStatus () {
+function getReadStatus() {
 	const radioOptions = document.getElementsByName('read');
-	return radioOptions[0].checked ? "Read" : "Not read";
+	return radioOptions[0].checked ? true : false;
 }
 
 // Runs validations on new book form
@@ -94,7 +100,7 @@ function validateForm() {
 	}
 
 	let found = false;
-	for (let i = 0; i < radioOptions.length; i ++) {
+	for (let i = 0; i < radioOptions.length; i++) {
 		if (radioOptions[i].checked) {
 			found = true;
 		}
@@ -119,7 +125,8 @@ function addBookToLibrary() {
 // Creates book card for single book and adds to DOM
 function createBookElement(book) {
 	const div = document.createElement('div');
-	div.innerHTML = 
+	const checked = (book.read ? 'checked' : '');
+	div.innerHTML =
 		`
 			<div class="card-title">
 				<span class="card-label">Title:</span>
@@ -134,18 +141,22 @@ function createBookElement(book) {
 				<span class="pages">${book.pages}</span>	
 			</div>
 			<div class="card-status">
-				<span class="card-label">Status:</span>
-				<span class="status">${book.read}</span>
+				<span class="card-label">Read?</span>
+				<span class="status">
+					${book.read ? hasRead : notRead}
+				</span>
 			</div>
 			<div class="card-buttons">
 				<input type="button" class="edit-card" value="Edit">
 				<input type="button" class="delete-card" data-id="${book.id}" value="Remove">
-			</div> 
+			</div>
+			<label class="switch">
+				<span>Read?</span>
+				<input class="checkbox" type="checkbox" data-id="${book.id}" ${checked}>
+			</label> 
 		`
 	div.classList.add('book');
 	div.dataset.id = book.id;
-	console.log(`Div id: ${div.dataset.id}`);
-	console.log(`Book id: ${book.id}`)
 	container.appendChild(div);
 }
 
@@ -181,6 +192,37 @@ function deleteCard(e) {
 	myLibrary.splice(itemIndex, 1);
 }
 
+/* 
+	====================
+	LOCAL STORAGE
+	====================
+*/
+// Function to test if localStorage is supported and available
+function storageAvailable(type) {
+	var storage;
+	try {
+		storage = window[type];
+		var x = '__storage_test__';
+		storage.setItem(x, x);
+		storage.removeItem(x);
+		return true;
+	}
+	catch (e) {
+		return e instanceof DOMException && (
+			// everything except Firefox
+			e.code === 22 ||
+			// Firefox
+			e.code === 1014 ||
+			// test name field too, because code might not be present
+			// everything except Firefox
+			e.name === 'QuotaExceededError' ||
+			// Firefox
+			e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
+			// acknowledge QuotaExceededError only if there's something already stored
+			(storage && storage.length !== 0);
+	}
+}
+
 /*
 	=================
 	CODE TO EXECUTE
@@ -199,7 +241,7 @@ render();
 
 // Event listeners for button clicks
 window.addEventListener('click', (e) => {
-	switch(e.target.className) {
+	switch (e.target.className) {
 		case 'new-book':
 			showForm();
 			break;
@@ -214,8 +256,18 @@ window.addEventListener('click', (e) => {
 			break;
 		case 'delete-card':
 			deleteCard(e);
-			// render();
 			break;
+		case 'checkbox':
+			const id = e.target.dataset.id;
+			const book = myLibrary.find(book => book.id == id);
+			book.changeReadStatus();
 	}
 });
+
+// Test for local storage
+if (storageAvailable('localStorage')) {
+	console.log('Wahoo!');
+} else {
+	console.log('Booo...');
+}
 
