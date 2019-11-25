@@ -53,9 +53,6 @@ function Book(title, author, pages, read) {
 // Add method to Book prototype to toggle read status
 Book.prototype.changeReadStatus = function () {
 	this.read = (this.read ? false : true);
-	const div = document.querySelector(`div[data-id="${this.id}"]`);
-	const span = div.getElementsByClassName('status').item(0);
-	span.textContent = (this.read ? hasRead : notRead);
 };
 
 // The data entered into the form to be used to make the book card
@@ -130,7 +127,7 @@ function createBookElement(book) {
 		`
 			<div class="card-title">
 				<span class="card-label">Title:</span>
-				<span class="title">${book.title}</span	
+				<span class="title">${book.title}</span>
 			</div>
 			<div class="card-author">
 				<span class="card-label">Author:</span>
@@ -140,19 +137,13 @@ function createBookElement(book) {
 				<span class="card-label">Pages:</span>
 				<span class="pages">${book.pages}</span>	
 			</div>
-			<div class="card-status">
-				<span class="card-label">Read?</span>
-				<span class="status">
-					${book.read ? hasRead : notRead}
-				</span>
-			</div>
-			<div class="card-buttons">
-				<input type="button" class="delete-card" data-id="${book.id}" value="Remove">
-			</div>
 			<label class="switch">
-				<span>Read?</span>
+				<span class="card-label">Read?</span>
 				<input class="checkbox" type="checkbox" data-id="${book.id}" ${checked}>
 			</label> 
+			
+				<input type="button" class="button delete-card" data-id="${book.id}" value="Remove">
+
 		`
 	div.classList.add('book');
 	div.dataset.id = book.id;
@@ -178,6 +169,7 @@ function showForm() {
 	bookForm.style.visibility = "initial";
 	wrapper.style.opacity = "0.5";
 }
+
 function deleteCard(e) {
 	// remove div
 	const delId = e.target.dataset.id;
@@ -201,20 +193,20 @@ function deleteCard(e) {
 window.addEventListener('click', (e) => {
 	console.log(e.target.className);
 	switch (e.target.className) {
-		case 'new-book':
+		case 'button new-book':
 			showForm();
 			break;
-		case 'cancel':
+		case 'button cancel':
 			hideForm();
 			break;
-		case 'submitBook':
+		case 'button submitBook':
 			if (validateForm()) {
 				getFormData();
 				addBookToLibrary(formData.title, formData.author, formData.pages, formData.read);
 				hideForm();
 			}
 			break;
-		case 'delete-card':
+		case 'button delete-card':
 			deleteCard(e);
 			break;
 		case 'checkbox':
