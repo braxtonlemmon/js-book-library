@@ -13,7 +13,7 @@ const container = document.querySelector('.container');
 const hasRead = "Yes";
 const notRead = "No";
 
-// Object containing initial books for testing
+// Object containing initial books for demo
 const defaultBooks = {
 	bookOne: {
 		title: 'Artemis Fowl',
@@ -115,11 +115,11 @@ function validateForm() {
 }
 
 // Adds book object to myLibrary array
-function addBookToLibrary() {
-	getFormData();
-	const book = new Book(formData.title, formData.author, formData.pages, formData.read);
+function addBookToLibrary(title, author, pages, read) {
+	const book = new Book(title, author, pages, read);
 	myLibrary.push(book);
 	createBookElement(book);
+	localStorage.setItem('bookList', JSON.stringify(myLibrary));
 }
 
 // Creates book card for single book and adds to DOM
@@ -161,9 +161,9 @@ function createBookElement(book) {
 }
 
 // Render all books
-function render() {
-	myLibrary.forEach(book => {
-		createBookElement(book);
+function render(saved) {
+	saved.forEach(book => {
+		addBookToLibrary(book.title, book.author, book.pages, book.read);
 	})
 }
 
@@ -190,37 +190,7 @@ function deleteCard(e) {
 	const arrayItem = myLibrary.find(obj => obj.id == id);
 	const itemIndex = myLibrary.indexOf(arrayItem);
 	myLibrary.splice(itemIndex, 1);
-}
-
-/* 
-	====================
-	LOCAL STORAGE
-	====================
-*/
-// Function to test if localStorage is supported and available
-function storageAvailable(type) {
-	var storage;
-	try {
-		storage = window[type];
-		var x = '__storage_test__';
-		storage.setItem(x, x);
-		storage.removeItem(x);
-		return true;
-	}
-	catch (e) {
-		return e instanceof DOMException && (
-			// everything except Firefox
-			e.code === 22 ||
-			// Firefox
-			e.code === 1014 ||
-			// test name field too, because code might not be present
-			// everything except Firefox
-			e.name === 'QuotaExceededError' ||
-			// Firefox
-			e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
-			// acknowledge QuotaExceededError only if there's something already stored
-			(storage && storage.length !== 0);
-	}
+	localStorage.setItem('bookList', JSON.stringify(myLibrary));
 }
 
 /*
@@ -228,16 +198,6 @@ function storageAvailable(type) {
 	CODE TO EXECUTE
 	=================
 */
-
-// Trial setup with default books
-for (const prop in defaultBooks) {
-	const book = defaultBooks[prop];
-	const newBook = new Book(book.title, book.author, book.pages, book.read);
-	myLibrary.push(newBook);
-}
-
-// Initial render with current items from myLibrary
-render();
 
 // Event listeners for button clicks
 window.addEventListener('click', (e) => {
@@ -250,7 +210,8 @@ window.addEventListener('click', (e) => {
 			break;
 		case 'submit-book':
 			if (validateForm()) {
-				addBookToLibrary();
+				getFormData();
+				addBookToLibrary(formData.title, formData.author, formData.pages, formData.read);
 				hideForm();
 			}
 			break;
@@ -261,13 +222,24 @@ window.addEventListener('click', (e) => {
 			const id = e.target.dataset.id;
 			const book = myLibrary.find(book => book.id == id);
 			book.changeReadStatus();
+			localStorage.setItem('bookList', JSON.stringify(myLibrary));
 	}
 });
 
-// Test for local storage
-if (storageAvailable('localStorage')) {
-	console.log('Wahoo!');
+// Loads items from local storage if they exist
+const bookList = localStorage.getItem('bookList');
+let saved = [];
+if (bookList === null || JSON.parse(bookList).length < 1) {
+	for (const prop in defaultBooks) {
+		const book = defaultBooks[prop];
+		saved.push(book);
+	}
 } else {
-	console.log('Booo...');
-}
+	saved = JSON.parse(bookList);
+};
+
+// Initial render with saved items
+render(saved);
+
+
 
