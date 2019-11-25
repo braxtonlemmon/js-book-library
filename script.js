@@ -147,7 +147,6 @@ function createBookElement(book) {
 				</span>
 			</div>
 			<div class="card-buttons">
-				<input type="button" class="edit-card" value="Edit">
 				<input type="button" class="delete-card" data-id="${book.id}" value="Remove">
 			</div>
 			<label class="switch">
@@ -179,15 +178,14 @@ function showForm() {
 	bookForm.style.visibility = "initial";
 	wrapper.style.opacity = "0.5";
 }
-
 function deleteCard(e) {
 	// remove div
-	const id = e.target.dataset.id;
-	const div = document.querySelector(`div[data-id="${id}"]`);
+	const delId = e.target.dataset.id;
+	const div = document.querySelector(`div[data-id="${delId}"]`);
 	container.removeChild(div);
 
 	// remove object from array
-	const arrayItem = myLibrary.find(obj => obj.id == id);
+	const arrayItem = myLibrary.find(obj => obj.id == delId);
 	const itemIndex = myLibrary.indexOf(arrayItem);
 	myLibrary.splice(itemIndex, 1);
 	localStorage.setItem('bookList', JSON.stringify(myLibrary));
@@ -201,6 +199,7 @@ function deleteCard(e) {
 
 // Event listeners for button clicks
 window.addEventListener('click', (e) => {
+	console.log(e.target.className);
 	switch (e.target.className) {
 		case 'new-book':
 			showForm();
@@ -208,7 +207,7 @@ window.addEventListener('click', (e) => {
 		case 'cancel':
 			hideForm();
 			break;
-		case 'submit-book':
+		case 'submitBook':
 			if (validateForm()) {
 				getFormData();
 				addBookToLibrary(formData.title, formData.author, formData.pages, formData.read);
@@ -219,10 +218,11 @@ window.addEventListener('click', (e) => {
 			deleteCard(e);
 			break;
 		case 'checkbox':
-			const id = e.target.dataset.id;
-			const book = myLibrary.find(book => book.id == id);
+			const checkId = e.target.dataset.id;
+			const book = myLibrary.find(book => book.id == checkId);
 			book.changeReadStatus();
 			localStorage.setItem('bookList', JSON.stringify(myLibrary));
+			break;
 	}
 });
 
